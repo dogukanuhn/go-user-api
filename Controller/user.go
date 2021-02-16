@@ -50,3 +50,17 @@ func(c *UserController) Login(ctx echo.Context) (err error){
 	result, err := service.Login(json["email"].(string))
 	return ctx.JSON(http.StatusOK, result)
 }
+
+func(c *UserController) Authenticate(ctx echo.Context) (err error){
+
+
+	auth := &models.Authenticate{}
+
+	if err = ctx.Bind(auth); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	result, err := service.Authenticate(auth)
+
+	return ctx.JSON(http.StatusOK, result)
+}

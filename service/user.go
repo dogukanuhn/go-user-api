@@ -6,8 +6,13 @@ import (
 	"user-basic/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	
-  
+	"math/rand"
+    "time"
+	"github.com/go-redis/redis/v8"
+	"github.com/beevik/guid"
+	"strconv"
+	"encoding/json"
+	"fmt"
 )
 
 
@@ -15,7 +20,10 @@ import (
 type UserService struct {
 }
 
-
+type RedisData struct{
+	Code string
+	AccessGuid string
+}
 
 func Login(email string) (*models.User,error) {
 
@@ -48,7 +56,13 @@ func Login(email string) (*models.User,error) {
         DB:       0,  // use default DB
     })
 
-	rdb.Set(context.Background(), email+":"+guid.New().String(), randomCode, 0)
+	data := &RedisData{Code:strconv.Itoa(randomCode),AccessGuid:guid.New().String()}
+
+	jsonData, err := json.Marshal(data)
+	
+	fmt.Println(string(jsonData))
+
+	rdb.Set(context.Background(), email, string(jsonData), 5*time.Minute)
 
 	return user, nil
 }
@@ -73,17 +87,33 @@ func Register(user *models.User) (bool, error) {
 	return true, err
 }
 
-// func Login(ctx echo.Context) string {
-// 	// var userMail = ctx.Param("email")
-// 	// fmt.Println(userMAil)
-// 	//  user := User{"10","test@mail.com"}
-// 	 return token
-// }
+func Authenticate(auth *models.Authenticate) (string, error){
 
-// func  GetUser(ctx echo.Context) User  {
+	rdb := redis.NewClient(&redis.Options{
+        Addr:     "localhost:6379",
+        Password: "", // no password set
+        DB:       0,  // use default DB
+    })
 
-// 	sort.Slice(users, func(i, j int) bool {
-//         return crowd[i].Name <= crowd[j].Name
-//     })
 
-// }
+	val, err := rdb.Get(context.Background(), auth.Email).Result()
+    if err != nil {
+        return "", err
+    }
+
+	var redisData *RedisData
+	json.Unmarshal([]byte(val), &redisData)
+	
+	result1 := redisData.Code == auth.Code
+	result2 := redisData.AccessGuid == auth.AccessGuid
+
+	if !result1 && !result2 {
+		return "", err
+	} 
+
+
+	
+	
+	return common.Authenticate(auth.Email)
+}
+

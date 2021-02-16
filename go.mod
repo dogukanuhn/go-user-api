@@ -12,7 +12,7 @@ require (
 	github.com/cosmtrek/air v1.21.2 // indirect
 	github.com/creack/pty v1.1.11 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/fatih/color v1.10.0 // indirect
+	github.com/fatih/color v1.10.0
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/go-redis/redis/v8 v8.5.0
 	github.com/google/go-cmp v0.5.4 // indirect

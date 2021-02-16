@@ -3,22 +3,17 @@ package common
 import (
 	"github.com/dgrijalva/jwt-go"
 	"time"
-	
+	"user-basic/models"
 )
-type Mongo struct{
-
-}
 
 
-type jwtCustomClaims struct {
-	Email  string `json:"email"`
-	jwt.StandardClaims
-}
+
+
 
 func Authenticate( userMail string) (string,error)  {
 
 	// Set custom claims
-	claims := &jwtCustomClaims{
+	claims := &models.JwtCustomClaims{
 		userMail,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
